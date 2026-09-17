@@ -1,0 +1,15 @@
+{
+  "name": "robys-salon-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "AI-powered WhatsApp assistant prototype for Roby's Salon (DigiGuru test build)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
