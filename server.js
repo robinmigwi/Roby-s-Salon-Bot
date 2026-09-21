@@ -61,7 +61,7 @@ async function askClaude(phone, userMessage) {
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-5",
       max_tokens: 500,
       system: buildSystemPrompt(),
       messages: history,
@@ -69,6 +69,12 @@ async function askClaude(phone, userMessage) {
   });
 
   const data = await response.json();
+
+  if (!response.ok) {
+    console.error("Anthropic API error:", JSON.stringify(data));
+    throw new Error(`Anthropic API call failed: ${data?.error?.message || response.status}`);
+  }
+
   const reply = data?.content?.find((b) => b.type === "text")?.text || "";
 
   history.push({ role: "assistant", content: reply });
@@ -92,7 +98,7 @@ function extractBooking(replyText) {
 
 async function sendWhatsAppMessage(to, text) {
   const url = `https://graph.facebook.com/v20.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
-  await fetch(url, {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -104,6 +110,13 @@ async function sendWhatsAppMessage(to, text) {
       text: { body: text },
     }),
   });
+
+  const data = await response.json();
+  if (!response.ok) {
+    console.error("WhatsApp send error:", JSON.stringify(data));
+  } else {
+    console.log("Reply sent successfully to", to);
+  }
 }
 
 // Meta calls this once to verify the webhook URL is real.
@@ -149,7 +162,7 @@ app.post("/webhook", async (req, res) => {
       console.log("NEW BOOKING:", booking);
     }
   } catch (err) {
-    console.error("Error handling webhook:", err);
+    console.error("Error handling webhook:", err.message);
   }
 });
 
